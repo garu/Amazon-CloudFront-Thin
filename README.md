@@ -8,6 +8,7 @@ and it tries to conform with Amazon's own API.
 
 #### Basic Usage
 
+```perl
     use Amazon::CloudFront::Thin;
 
     my $cloudfront = Amazon::CloudFront::Thin->new({
@@ -20,6 +21,7 @@ and it tries to conform with Amazon's own API.
        '/path/to/some/object.jpg',
        '/path/to/another/object.bin',
     );
+```
 
 For more information, please refer to the
 [Amazon::CloudFront::Thin's complete documentation](https://metacpan.org/pod/Amazon::CloudFront::Thin).
