@@ -9,7 +9,7 @@ use HTTP::Date     ();
 use HTTP::Request  ();
 use Digest::SHA    ();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my ($class, @extra) = @_;
@@ -309,13 +309,13 @@ Available arguments are:
 =over
 
 =item * C<aws_access_key_id> (B<required>)
-Your L<CloudFront credential/"Amazon CloudFront setup in a Nutshell"> key id.
+Your L<< CloudFront credential|/"Amazon CloudFront setup in a Nutshell" >> key id.
 
 =item * C<aws_secret_access_key> (B<required>)
-Your L<CloudFront credential/"Amazon CloudFront setup in a Nutshell"> secret.
+Your L<< CloudFront credential|/"Amazon CloudFront setup in a Nutshell" >> secret.
 
 =item * C<distribution_id> (B<required>)
-The id of the L<CloudFront distribution/"Amazon CloudFront setup in a Nutshell">
+The id of the L<< CloudFront distribution|/"Amazon CloudFront setup in a Nutshell" >>
 you want to manage.
 
 =item * C<ua> (Optional)
@@ -374,7 +374,8 @@ For more information, please refer to
 L<< Amazon's API documentation for CreateInvalidation|http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/CreateInvalidation.html >>.
 For information on invalidations in general, including limitations,
 please refer to L<< Amazon's CloudFront Developer Guide|http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html >>.
-Finally, please refer to L<< Amazon's CloudFront error messages|
+Finally, please refer to L<< Amazon's CloudFront error messages|http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/Errors.html >>
+for more information on how to interpret errors returned as responses.
 
 =head1 AUTHOR
 
