@@ -221,6 +221,26 @@ CloudFront paths quickly and easily, and the alternatives felt either
 like an "all or nothing" approach or lacked the documentation or
 features I needed.
 
+=head2 Amazon CloudFront setup in a Nutshell
+
+Amazon CloudFront is the content-delivery (CDN) service of Amazon Web
+Services (AWS). You use it by
+L<< creating distributions|https://console.aws.amazon.com/cloudfront/home?region=us-east-1#distributions: >>
+(each with its own "distribution id" which we use below). To manage
+your distributions with this module, you need to provide credentials
+allowed to access/change your CloudFront distributions. You do this
+by going to L<< AWS's Identity and Access Management (IAM) console|https://console.aws.amazon.com/iam/home >>
+and creating a new user. When you do that, the user's C<Access Key ID>
+and C<Secret Access Key> credentials will be shown to you. You'll also
+need to pass those to Amazon::CloudFront::Thin's constructor as shown
+in the SYNOPSIS and below, as C<aws_access_key_id> and
+C<aws_secret_access_key>, respectively. Finally, please note that
+B<the provided IAM credentials must have the rights to change your CloudFront>.
+You can do that by clicking on the user (in the Amazon IAM console where
+you created it) and attaching a policy to it, such as the
+C<CloudFrontFullAccess> standard policy. Otherwise you'll get errors when
+trying to invalidate your CloudFront distributions.
+
 =head1 CONSTRUCTOR
 
 =head2 new( \%params )
