@@ -1,6 +1,6 @@
+^\.travis.yml
 ^\.git
 ^[^/]+\.pl$
-^\ignore.txt
 ^_build
 ^Build$
 ^blib
