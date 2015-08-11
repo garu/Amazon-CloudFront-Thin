@@ -17,7 +17,7 @@ and it tries to conform with Amazon's own API.
         distribution_id       => 'my-cloudfront-distribution',
     });
 
-    my $cloudfront->create_invalidation(
+    my $res = $cloudfront->create_invalidation(
        '/path/to/some/object.jpg',
        '/path/to/another/object.bin',
     );

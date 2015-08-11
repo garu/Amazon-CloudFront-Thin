@@ -176,7 +176,7 @@ Amazon::CloudFront::Thin - A thin, lightweight, low-level Amazon CloudFront clie
         distribution_id       => 'my-cloudfront-distribution',
     });
 
-    my $cloudfront->create_invalidation(
+    my $res = $cloudfront->create_invalidation(
        '/path/to/some/object.jpg',
        '/path/to/another/object.bin',
     );
