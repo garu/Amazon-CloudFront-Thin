@@ -5,6 +5,7 @@ use URI            ();
 use URI::Escape    ();
 use Carp           ();
 use HTTP::Headers  ();
+use HTTP::Date     ();
 use HTTP::Request  ();
 use Digest::SHA    ();
 
@@ -73,31 +74,62 @@ sub create_invalidation {
 
     my $content = _create_xml_payload(\@paths, $time);
 
+    # Amazon unfortunately does not comply with RFC 1123 for the
+    # 'date' header, requiring instead that it gets written in
+    # ISO-8601 format. Since HTTP::Headers does the right thing
+    # for date(), we set the ISO-8601 date in "X-Amz-Date" instead.
+    my ($formatted_date, $formatted_time) = _format_date($time);
     my $http_headers = HTTP::Headers->new(
         'Content-Length' => length $content,
         'Content-Type'   => 'text/xml',
         'Host'           => $url->host,
+        'X-Amz-Date'     => $formatted_date . 'T' . $formatted_time . 'Z',
     );
-    $http_headers->date($time);
 
     $http_headers->header(
-        Authorization => sprintf(
-            'AWS %s:%s',
-            $self->{aws_secret_access_key},
-            _calculate_signature($url, $http_headers, $content)
-        ),
+        Authorization => 'AWS4-HMAC-SHA256 Credential='
+            . $self->{aws_access_key_id} . '/' . _cloudfront_scope($formatted_date)
+            . ', SignedHeaders=' . _signed_headers($http_headers)
+            . ', Signature='
+            . _calculate_signature(
+                    $self->{aws_secret_access_key},
+                    $url,
+                    $http_headers,
+                    $content
+            )
     );
 
     my $request = HTTP::Request->new('POST', $url, $http_headers, $content);
     return $self->ua->request($request);
 }
 
+sub _cloudfront_scope {
+    my ($date) = @_;
+    return sprintf("%s/us-east-1/cloudfront/aws4_request", $date);
+}
+
+sub _format_date {
+    my ($time) = @_;
+    my @date = localtime $time;
+    $date[5] += 1900; # fix the year
+    $date[4] += 1;    # fix the month
+
+    return (
+        sprintf('%d%02d%02d', @date[5,4,3]),  # YYYYMMDD
+        sprintf('%02d%02d%02d', @date[2,1,0]) # hhmmss
+    );
+}
+
 sub _calculate_signature {
-    my ($url, $headers, $content) = @_;
+    my ($aws_secret_access_key, $url, $headers, $content) = @_;
 
     my $canonical_request = _create_canonical_request($url, $headers, $content);
-
     my $string_to_sign = _create_string_to_sign($headers, $canonical_request);
+
+    my ($date) = _format_date(
+        HTTP::Date::str2time($headers->header('X-Amz-Date'))
+    );
+    return _create_signature($aws_secret_access_key, $string_to_sign, $date);
 }
 
 sub _create_canonical_request {
@@ -112,34 +144,39 @@ sub _create_canonical_request {
             lc($_) . ':' . $headers->header($_)
           } @sorted_header_names
       ) . "\n\n"
-      . join(';' => map lc, @sorted_header_names) . "\n"
+      . _signed_headers($headers) . "\n"
       . Digest::SHA::sha256_hex($content)
     ;
+}
+
+sub _signed_headers {
+    my ($headers) = @_;
+    return join(';' => map lc, sort $headers->header_field_names());
 }
 
 sub _create_string_to_sign {
     my ($headers, $canonical_request) = @_;
 
-    my ($sec, $min, $hour, $day, $month, $year) = localtime $headers->date;
-    $year  += 1900;
-    $month += 1;
+    my ($formatted_date, $formatted_time) = _format_date(
+        HTTP::Date::str2time($headers->header('X-Amz-Date'))
+    );
 
     return
         "AWS4-HMAC-SHA256\n"
-      . sprintf("%d%02d%02dT%02d%02d%02dZ\n", $year, $month, $day, $hour, $min, $sec)
-      . sprintf("%d%02d%02d/us-east-1/cloudfront/aws4_request\n", $year, $month, $day)
+      . $formatted_date . 'T' . $formatted_time . "Z\n"
+      . _cloudfront_scope($formatted_date) . "\n"
       . Digest::SHA::sha256_hex($canonical_request)
     ;
 }
 
 sub _create_signature {
-    my ($aws_secret_key, $string_to_sign, $date) = @_;
+    my ($aws_secret_access_key, $string_to_sign, $date) = @_;
 
     return Digest::SHA::hmac_sha256_hex(
         $string_to_sign, Digest::SHA::hmac_sha256(
             'aws4_request', Digest::SHA::hmac_sha256(
                 'cloudfront', Digest::SHA::hmac_sha256(
-                    'us-east-1', Digest::SHA::hmac_sha256($date, 'AWS4' . $aws_secret_key)
+                    'us-east-1', Digest::SHA::hmac_sha256($date, 'AWS4' . $aws_secret_access_key)
                 )
             )
         )
@@ -160,6 +197,7 @@ sub _create_xml_payload {
     return qq{<?xml version="1.0" encoding="UTF-8"?><InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/2015-04-17/"><Paths><Quantity>$total_paths</Quantity><Items>$path_content</Items></Paths><CallerReference>$identifier</CallerReference></InvalidationBatch>};
 }
 
+42;
 __END__
 
 =head1 NAME
@@ -271,13 +309,14 @@ Available arguments are:
 =over
 
 =item * C<aws_access_key_id> (B<required>)
-Your CloudFront credential key id.
+Your L<CloudFront credential/"Amazon CloudFront setup in a Nutshell"> key id.
 
 =item * C<aws_secret_access_key> (B<required>)
-Your CloudFront credential secret.
+Your L<CloudFront credential/"Amazon CloudFront setup in a Nutshell"> secret.
 
 =item * C<distribution_id> (B<required>)
-The id of the CloudFront distribution you want to manage. 
+The id of the L<CloudFront distribution/"Amazon CloudFront setup in a Nutshell">
+you want to manage.
 
 =item * C<ua> (Optional)
 An LWP::UserAgent compatible object (otherwise, LWP::UserAgent will be used).
@@ -324,18 +363,12 @@ method on the returned object to read the contents:
 
 This method creates a new invalidation batch request on Amazon CloudFront.
 Please note that B<paths are case sensitive> and that
-B<the leading '/' is optional>, meaning C<"foo/bar"> and C<"/foo/bar">
-point to the same object. Finally, please notice
-B<you must escape all non-ASCII and unsafe characters yourself>. Do not
-URL-encode any other characters in the path, or CloudFront will not
-invalidate the old version of the updated object. We recommend using
-L<URI::Escape> for this, like so:
+B<the leading '/' is optional>, meaning C<"foo/BAR"> and C<"FOO/bar">
+are completely different, but C<"foo/bar"> and C<"/foo/bar"> (note the '/')
+point to the same object.
 
-    use URI::Escape qw( uri_escape );
-
-    my @escaped_paths = map { uri_escape($_) } @original_paths;
-
-    my $res = $cloudfront->create_invalidation( @escaped_paths );
+Each path is wrapped under CDATA on the resulting XML, so it should be
+safe for non-ASCII and unsafe characters in your paths.
 
 For more information, please refer to
 L<< Amazon's API documentation for CreateInvalidation|http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/CreateInvalidation.html >>.
