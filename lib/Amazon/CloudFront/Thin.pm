@@ -9,7 +9,7 @@ use HTTP::Date     ();
 use HTTP::Request  ();
 use Digest::SHA    ();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
     my ($class, @extra) = @_;
@@ -110,7 +110,7 @@ sub _cloudfront_scope {
 
 sub _format_date {
     my ($time) = @_;
-    my @date = localtime $time;
+    my @date   = gmtime $time;
     $date[5] += 1900; # fix the year
     $date[4] += 1;    # fix the month
 
