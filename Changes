@@ -1,5 +1,8 @@
 Revision history for Amazon-CloudFront-Thin
 
+0.03    2015-09-19
+    - Amazon expects GMT times (Devin Ceartas)
+
 0.02    2015-08-11
     - pod fixes
 

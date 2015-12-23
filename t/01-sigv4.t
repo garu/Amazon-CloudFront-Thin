@@ -43,7 +43,7 @@ POST
 content-length:312
 content-type:text/xml
 host:cloudfront.amazonaws.com
-x-amz-date:20150807T153442Z
+x-amz-date:20150807T183442Z
 
 content-length;content-type;host;x-amz-date
 64b09f3f2181c5d78ac37f12611e5a9ca0269a2da1dd515e8828e6165a8da029
@@ -54,7 +54,7 @@ is $canonical_request, $expected, 'canonical request created successfully';
 
 is(
     Digest::SHA::sha256_hex($canonical_request),
-    '0e440187931192e5722a7c5f33e1d50fdca88abd548cb0963edcf7a4a991568f',
+    'd5c52539eb683e5b92c772bb271f74ce8f324be1f7019c64f839fa622f6cfb58',
     'sha256 matches canonical request'
 );
 
@@ -71,8 +71,6 @@ is(
         $string_to_sign,
         $date
     ),
-   'cbf1de94a5d9f9099dc7114d6083fa852cc7d4e12a93118b429bb6d36334d9c7',
+   'ece45cfec339978ebed727d680f6a5d3b7089f52fb7faa3d5741225293d8066f',
    'v4 signature created successfully'
 );
-
-
