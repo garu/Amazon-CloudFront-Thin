@@ -9,7 +9,7 @@ use HTTP::Date     ();
 use HTTP::Request  ();
 use Digest::SHA    ();
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub new {
     my ($class, @extra) = @_;
