@@ -199,6 +199,7 @@ sub _create_xml_payload {
 
 42;
 __END__
+=encoding utf8
 
 =head1 NAME
 
@@ -376,6 +377,26 @@ For information on invalidations in general, including limitations,
 please refer to L<< Amazon's CloudFront Developer Guide|http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html >>.
 Finally, please refer to L<< Amazon's CloudFront error messages|http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/Errors.html >>
 for more information on how to interpret errors returned as responses.
+
+=head1 HANDLING UNICODE FILENAMES & PATHS
+
+Amazon appears to reference filenames containing non ASCII characters
+by URL Encoding the filenames. The following code takes a path such as
+C<"events/الابحاث"> which contains both a slash to indicate a directory
+boundary and a non-ascii filename and creates an invalidation:
+
+    use Amazon::CloudFront::Thin;
+    use URL::Encode qw( url_encode_utf8 );
+
+    my $cloudfront = Amazon::CloudFront::Thin::->new( ... );
+
+    my $encoded_filename = url_encode_utf8($path);
+
+    # "/" will be encoded as %2F, but we want it as "/"
+    $encoded_filename    =~ s!%2F!/!g;
+
+    $cloudfront->create_invalidation( '/' . $encoded_filename );
+
 
 =head1 AUTHOR
 
