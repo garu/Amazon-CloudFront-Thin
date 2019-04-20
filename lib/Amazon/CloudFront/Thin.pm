@@ -375,10 +375,10 @@ Each path is wrapped under CDATA on the resulting XML, so it should be
 safe for non-ASCII and unsafe characters in your paths.
 
 For more information, please refer to
-L<< Amazon's API documentation for CreateInvalidation|http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/CreateInvalidation.html >>.
+L<< Amazon's API documentation for CreateInvalidation|https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_CreateInvalidation.html >>.
 For information on invalidations in general, including limitations,
-please refer to L<< Amazon's CloudFront Developer Guide|http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html >>.
-Finally, please refer to L<< Amazon's CloudFront error messages|http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/Errors.html >>
+please refer to L<< Amazon's CloudFront Developer Guide|https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html >>.
+Finally, please refer to L<< Amazon's CloudFront error messages|https://docs.aws.amazon.com/cloudfront/latest/APIReference/CommonErrors.html >>
 for more information on how to interpret errors returned as responses.
 
 =head1 HANDLING UNICODE FILENAMES & PATHS
