@@ -192,6 +192,9 @@ sub _create_xml_payload {
         # http://docs.aws.amazon.com/AmazonCloudFront/latest/APIReference/InvalidationBatchDatatype.html
         $path = '/' . $path unless index($path, '/') == 0;
         # we wrap paths on CDATA so we don't have to escape them
+        if (index($path, ']]>') >= 0) {
+            $path =~ s/\]\]>/\]\]\]\]><![CDATA[>/gs; # split CDATA end token.
+        }
         $path_content .= '<Path><![CDATA[' . $path . ']]></Path>'
     }
     return qq{<?xml version="1.0" encoding="UTF-8"?><InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/2018-11-05/"><Paths><Quantity>$total_paths</Quantity><Items>$path_content</Items></Paths><CallerReference>$identifier</CallerReference></InvalidationBatch>};
