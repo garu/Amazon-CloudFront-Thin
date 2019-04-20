@@ -9,7 +9,7 @@ use HTTP::Date     ();
 use HTTP::Request  ();
 use Digest::SHA    ();
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub new {
     my ($class, @extra) = @_;
@@ -407,7 +407,7 @@ Breno G. de Oliveira C<< garu at cpan.org >>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2015 Breno G. de Oliveira C<< <garu at cpan.org> >>. All rights reserved.
+Copyright 2015-2019 Breno G. de Oliveira C<< <garu at cpan.org> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>.
