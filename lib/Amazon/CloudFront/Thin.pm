@@ -68,7 +68,7 @@ sub create_invalidation {
     my $time = time;
 
     my $url = URI->new(
-        'https://cloudfront.amazonaws.com/2015-04-17/distribution/'
+        'https://cloudfront.amazonaws.com/2018-11-05/distribution/'
         . $self->{distribution_id} . '/invalidation'
     );
 
@@ -194,7 +194,7 @@ sub _create_xml_payload {
         # we wrap paths on CDATA so we don't have to escape them
         $path_content .= '<Path><![CDATA[' . $path . ']]></Path>'
     }
-    return qq{<?xml version="1.0" encoding="UTF-8"?><InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/2015-04-17/"><Paths><Quantity>$total_paths</Quantity><Items>$path_content</Items></Paths><CallerReference>$identifier</CallerReference></InvalidationBatch>};
+    return qq{<?xml version="1.0" encoding="UTF-8"?><InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/2018-11-05/"><Paths><Quantity>$total_paths</Quantity><Items>$path_content</Items></Paths><CallerReference>$identifier</CallerReference></InvalidationBatch>};
 }
 
 42;

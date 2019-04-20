@@ -19,7 +19,7 @@ my $content = Amazon::CloudFront::Thin::_create_xml_payload(\@paths, $time);
 
 is(
     $content,
-    '<?xml version="1.0" encoding="UTF-8"?><InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/2015-04-17/"><Paths><Quantity>2</Quantity><Items><Path><![CDATA[/blog/some/document.pdf]]></Path><Path><![CDATA[/images/*]]></Path></Items></Paths><CallerReference>1438972482</CallerReference></InvalidationBatch>',
+    '<?xml version="1.0" encoding="UTF-8"?><InvalidationBatch xmlns="http://cloudfront.amazonaws.com/doc/2018-11-05/"><Paths><Quantity>2</Quantity><Items><Path><![CDATA[/blog/some/document.pdf]]></Path><Path><![CDATA[/images/*]]></Path></Items></Paths><CallerReference>1438972482</CallerReference></InvalidationBatch>',
     'payload created successfully'
 );
 
@@ -46,7 +46,7 @@ host:cloudfront.amazonaws.com
 x-amz-date:20150807T183442Z
 
 content-length;content-type;host;x-amz-date
-64b09f3f2181c5d78ac37f12611e5a9ca0269a2da1dd515e8828e6165a8da029
+e68a9818cc606b49cc85f99ef4c017b49f97624595ead70620e33b5351a41f1b
 EOEXPECTED
 chomp $expected;
 
@@ -54,7 +54,7 @@ is $canonical_request, $expected, 'canonical request created successfully';
 
 is(
     Digest::SHA::sha256_hex($canonical_request),
-    'd5c52539eb683e5b92c772bb271f74ce8f324be1f7019c64f839fa622f6cfb58',
+    'eab4bd0ac0b1c0edbc40e37a078e7b9df17be63232ac042831b5276deed9f6dc',
     'sha256 matches canonical request'
 );
 
@@ -71,6 +71,6 @@ is(
         $string_to_sign,
         $date
     ),
-   'ece45cfec339978ebed727d680f6a5d3b7089f52fb7faa3d5741225293d8066f',
-   'v4 signature created successfully'
+    '1229c5a8f2077195cdfe9edf514af4f7e33d4120fdce00b3ce5a3146e166e2a3',
+    'v4 signature created successfully'
 );
